@@ -12,7 +12,13 @@ Directory **Data** contains:
 
 
 Directory **Scripts** contains:  
+- ...
 
+
+Directory **Results** contains:  
+- the obtained diversity estimates in tabular format  
+- interactive Choropleth maps  
+- results in GeoPackage format  
 
 
 
