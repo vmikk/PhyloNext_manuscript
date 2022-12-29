@@ -14,3 +14,28 @@ Directory **Data** contains:
 Directory *Data* contains:
 - `Acacia_2013_parquet.7z` - the original dataset (based on [DOI:10.5061/dryad.33kn3](https://datadryad.org/stash/dataset/doi:10.5061/dryad.33kn3)) converted into Parquet format
 - `Acacia_2022Dec_parquet.7z` - the subset of *Acacia* species occurrences deposited in GBIF (as of December 2022)
+
+
+## `Acacia_2013_parquet.7z`
+
+To make the dataset compatible with PhyloNext, it was converted into Apache Parquet file format. In the original dataset, species occurrences are in Lambert Conformal Conic projection for Australia, which was converted into latitude and longitude coordinates (`EPSG:4326`).  
+In addition, several *Acacia* species were renamed according to the current classification system:
+
+| Name in the original dataset | Updated name           |
+| ---------------------------- | ---------------------- |
+| *Acacia bancroftii*          | *Acacia bancroftiorum* |
+| *Acacia bartleana*           | *Acacia microbotrya*   |
+| *Acacia centrinervia*        | *Acacia lineata*       |
+| *Acacia cometes*             | *Acacia lachnophylla*  |
+| *Acacia cunninghamii*        | *Acacia cummingiana*   |
+| *Acacia diphylla*            | *Acacia blakei*        |
+| *Acacia eglandulosa*         | *Acacia cyclops*       |
+| *Acacia homalophylla*        | *Acacia omalophylla*   |
+| *Acacia hunteriana*          | *Acacia boormanii*     |
+| *Acacia jutsonii*            | *Acacia heteroneura*   |
+| *Acacia leichardtii*         | *Acacia leichhardtii*  |
+| *Acacia microcephala*        | *Acacia microcybe*     |
+| *Acacia perangusta*          | *Acacia fimbriata*     |
+| *Acacia stowardii*           | *Acacia chamaeleon*    |
+| *Acacia vincentii*           | *Acacia deltoidea*     |
+
