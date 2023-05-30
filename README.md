@@ -21,6 +21,11 @@ Directory **Results** contains:
 - results in GeoPackage format (`Diversity_estimates.gpkg`)  
 - biodiversity estimates, along with the phylogenetic tree, in the native Biodiverse format (`Biodiverse.bds`)  
 
+The test included:  
+a) a nearly identical analysis of the original spatial dataset and phylogeny,  
+b) analysis of original phylogeny with new filtered GBIF occurrence data with the original phylogeny,  
+c) analysis of the original occurrence data with a custom synthetic phylogeny from OpenTree,  
+d) analysis of new filtered GBIF occurrence data with a custom synthetic phylogeny from OpenTree.  
 
 
 ## `Acacia_2013_parquet.7z`
