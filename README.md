@@ -9,6 +9,7 @@ Directory **Data** contains:
 - `Acacia_2013_tree.nwk` - the original phylogenetic tree used in González-Orozco *et al.* (2013)  
 - `Acacia_2022_OTT_tree.nwk` - phylogenetic tree fetched from the Open Tree of Life (does not contain tree tips imputed based on taxonomic data only)  
 - `Acacia_GBIF_speciesKeys.txt` - GBIF species keys used to obtain a data subset comparable to the original dataset.  
+- `Acacia_2022Dec_Dataset_DOIs.txt` - DOIs of datasets with Australian *Acacia* species occurrences  
 
 
 Directory **Scripts** contains:  
@@ -62,4 +63,8 @@ González-Orozco CE, Laffan SW, Knerr N, Miller JT. (2013) Data from: A biogeogr
 González-Orozco CE, Laffan SW, Knerr N, Miller JT. (2013) A biogeographical regionalization of Australian *Acacia* species. The Journal of Biogeography, 40: 2156-2166. [DOI:10.1111/jbi.12153](https://onlinelibrary.wiley.com/doi/10.1111/jbi.12153)  
 
 Mishler BD, Knerr N, González-Orozco CE, Thornhill AH, Laffan SW, Miller JT. (2014). Phylogenetic measures of biodiversity and neo- and paleo-endemism in Australian *Acacia*. Nature Communications, 5(1), 4473.  [DOI:10.1038/ncomms5473](https://www.nature.com/articles/ncomms5473)  
+
+### *Acacia* 2022 dataset:
+
+See the [`Data/Acacia_2022Dec_Dataset_DOIs.txt`](https://github.com/vmikk/PhyloNext_manuscript/blob/main/Data/Acacia_2022Dec_Dataset_DOIs.txt) file.  
 
