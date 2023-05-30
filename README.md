@@ -16,9 +16,10 @@ Directory **Scripts** contains:
 
 
 Directory **Results** contains:  
-- the obtained diversity estimates in tabular format  
-- interactive choropleth maps  
-- results in GeoPackage format  
+- the obtained diversity estimates in tabular format (`Biodiverse_results_merged.txt`)  
+- interactive choropleth maps (`Choropleth.html`)  
+- results in GeoPackage format (`Diversity_estimates.gpkg`)  
+- biodiversity estimates, along with the phylogenetic tree, in the native Biodiverse format (`Biodiverse.bds`)  
 
 
 
