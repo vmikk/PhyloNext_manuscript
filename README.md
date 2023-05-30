@@ -68,3 +68,15 @@ Mishler BD, Knerr N, González-Orozco CE, Thornhill AH, Laffan SW, Miller JT. (2
 
 See the [`Data/Acacia_2022Dec_Dataset_DOIs.txt`](https://github.com/vmikk/PhyloNext_manuscript/blob/main/Data/Acacia_2022Dec_Dataset_DOIs.txt) file.  
 
+### *Acacia* phylogenetic trees:
+
+Mishler BD, Knerr N, González-Orozco CE, Thornhill AH, Laffan SW, Miller JT. (2014) Phylogenetic measures of biodiversity and neo- and paleo-endemism in Australian *Acacia*. Nature Communications, 5(1), 4473.  [DOI:10.1038/ncomms5473](https://www.nature.com/articles/ncomms5473)  
+
+Miller JT, Murphy DJ, Ho SYW, Cantrill DJ, Seigler D. (2013) Comparative dating of *Acacia*: Combining fossils and multiple phylogenies to infer ages of clades with poor fossil records. Australian Journal of Botany, 61(6), 436–445. [DOI:10.1071/BT13149](https://www.publish.csiro.au/bt/BT13149)  
+
+Miller JT, Seigler D, Miller JT, Seigler D. (2012) Evolutionary and taxonomic relationships of *Acacia s.l.* (Leguminosae: Mimosoideae). Australian Systematic Botany, 25(3), 217–224. [DOI:10.1071/SB11042](https://www.publish.csiro.au/sb/SB11042)  
+
+Miller JT, Terra V, Riggins C, Ebinger JE, Seigler DS (2017) Molecular Phylogenetics of Parasenegalia and Pseudosenegalia (Fabaceae: Mimosoideae). Systematic Botany, 42(3), 465–469. [DOI:10.1600/036364417X696140](https://www.ingentaconnect.com/content/aspt/sb/2017/00000042/00000003/art00008)  
+
+Williams AV, Miller JT, Small I, Nevill PG, Boykin LM. (2016) Integration of complete chloroplast genome sequences with small amplicon datasets improves phylogenetic resolution in Acacia. Molecular Phylogenetics and Evolution, 96, 1–8. [DOI:10.1016/j.ympev.2015.11.021](https://www.sciencedirect.com/science/article/pii/S1055790315003759)  
+
