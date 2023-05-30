@@ -1,0 +1,303 @@
+
+## In this file, we provide code examples 
+## to demonstrate the capabilities of the PhyloNext pipeline.
+# 
+# The code includes:
+# a) a nearly identical analysis of the original spatial dataset 
+#    and phylogeny (González-Orozco et al., 2011, 2013; Mishler et al., 2014);
+# 
+# b) analysis of original phylogeny with new filtered 
+#    GBIF occurrence data with the original phylogeny;
+# 
+# c) analysis of the original occurrence data with a custom 
+#    synthetic phylogeny from OpenTree;
+# 
+# d) analysis of new filtered GBIF occurrence data with 
+#    a custom synthetic phylogeny from OpenTree
+
+
+## NB.
+#  The following scripts were executed on a High Performance Computing (HPC) 
+#  cluster using the SLURM workload manager.
+#  We have also utilized Singularity as our container engine. 
+#  Singularity was loaded onto the HPC cluster using environment modules.
+
+## NB.
+# The code below configures the pipeline to utilize up to 16 CPUs at maximum.
+# If you need to override this setting,
+# - adjust the `cpus` directive within the `HPC.config` file,
+# - change the `biodiversethreads` parameter in `Params_Acacia.yaml`,
+# - and modify the `-qs` (queue size) parameter in the scripts provided below.
+
+
+
+## Download the PhyloNext pipeline
+nextflow pull vmikk/PhyloNext -r main
+
+
+######### Download input data
+
+## Input data should be in the `~/ACACIA` directory
+mkdir -p ~/ACACIA
+cd ~/ACACIA
+
+## The original phylogenetic tree used in González-Orozco et al. (2013)
+wget https://raw.githubusercontent.com/vmikk/PhyloNext_manuscript/main/Data/Acacia_2013_tree.nwk
+
+## The original occurrence dataset (based on DOI:10.5061/dryad.33kn3) converted into Parquet format
+wget https://raw.githubusercontent.com/vmikk/PhyloNext_manuscript/main/Data/Acacia_2013_parquet.7z
+
+## The subset of Acacia species occurrences deposited in GBIF (as of December 2022)
+wget https://raw.githubusercontent.com/vmikk/PhyloNext_manuscript/main/Data/Acacia_2022Dec_parquet.7z
+
+## Phylogenetic tree fetched from the Open Tree of Life
+wget https://raw.githubusercontent.com/vmikk/PhyloNext_manuscript/main/Data/Acacia_2022_OTT_tree.nwk
+
+
+## Unpack parquet files
+7z x Acacia_2013_parquet.7z
+7z x Acacia_2022Dec_parquet.7z
+
+
+
+######### Prepare configuration files
+
+
+cd ~/ACACIA
+
+## Create config file
+## (specify number of CPUs per process)
+cat > HPC.config <<'EOT'
+
+process {
+
+    // Occurrence filtering, stage I
+    withName:occ_filter{
+        cpus = 16
+    }
+
+    // Counting the total number of records per H3 cell
+    withName:record_count{
+        cpus = 16
+    }
+
+    // Prepare a list of DOIs for the GBIF datasets
+    withName:derived_datasets {
+        cpus = 16
+    }
+
+}
+EOT
+
+
+## Create parameters file (in YAML format)
+cat > Params_Acacia.yaml <<EOT
+h3resolution         : 4
+dbscan               : false
+terrestrial          : $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/Land_Buffered_025_dgr.RData
+rmcountrycentroids   : $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_CountryCentroids_buf_1000m.RData
+rmcountrycapitals    : $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Capitals_buf_10000m.RData
+rminstitutions       : $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Institutions_buf_100m.RData
+rmurban              : $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Urban.RData
+indices              : "calc_richness,calc_simpson_shannon,calc_endemism_whole,calc_pd,calc_pe,calc_phylo_rpd1,calc_phylo_rpd2,calc_phylo_rpe1,calc_phylo_rpe2"
+leaflet_var          : "RICHNESS_ALL,PD,SES_PD,PD_P,ENDW_WE,SES_ENDW_WE,PE_WE,SES_PE_WE,PHYLO_RPD2,SES_PHYLO_RPD2,PHYLO_RPE2,SES_PHYLO_RPE2,CANAPE,Redundancy"
+leaflet_canapesuper  : true
+iterations           : 5000
+biodiversethreads    : 16
+randname             : "rand_structured"
+EOT
+
+
+
+
+###### Analysis A - Original occurrences + original tree
+
+cd ~/ACACIA/
+
+## Create the script
+cat > run_nf_A.sh <<'EOT'
+#!/bin/bash
+
+## Load Singularity module
+module load any/singularity/3.7.3
+
+## Specify the max heap size
+export NXF_OPTS="-Xms500M -Xmx2G"
+
+## Specify the cache directory for a Singularity images
+export NXF_SINGULARITY_CACHEDIR="$HOME/Singularity_images/"
+
+## Run the pipeline
+nextflow run vmikk/PhyloNext -r main \
+  -c           $HOME/ACACIA/HPC.config \
+  -params-file $HOME/ACACIA/Params_Acacia.yaml \
+  --input      $HOME/ACACIA/Acacia_2013_parquet \
+  --genus      "Acacia" \
+  --phytree    $HOME/ACACIA/Acacia_2013_tree.nwk \
+  --phylabels  "Latin" \
+  -resume \
+  -profile singularity \
+  -qs 16
+
+EOT
+
+chmod +x run_nf_A.sh
+
+
+mkdir -p ~/ACACIA/Analysis_A
+cd ~/ACACIA/Analysis_A
+
+sbatch \
+  --job-name=nf_A -p "amd" \
+  --ntasks-per-node=16 --nodes=1 \
+  --mem=20G --time=05:00:00 \
+  ../run_nf_A.sh
+
+
+
+###### Analysis B - GBIF occurrences + original tree
+
+cd ~/ACACIA/
+
+## Create the script
+cat > run_nf_B.sh <<'EOT'
+#!/bin/bash
+
+## Load Singularity module
+module load any/singularity/3.7.3
+
+## Specify the max heap size
+export NXF_OPTS="-Xms500M -Xmx2G"
+
+## Specify the cache directory for a Singularity images
+export NXF_SINGULARITY_CACHEDIR="$HOME/Singularity_images/"
+
+## Run the pipeline
+nextflow run vmikk/PhyloNext -r main \
+  -c           $HOME/ACACIA/HPC.config \
+  -params-file $HOME/ACACIA/Params_Acacia.yaml \
+  --input      $HOME/ACACIA/Acacia_2022Dec_parquet \
+  --genus      "Acacia" \
+  --basisofrecordinclude "PRESERVED_SPECIMEN" \
+  --minyear          1945 \
+  --coordprecision   0.1 \
+  --coorduncertainty 21000 \
+  --phytree          $HOME/ACACIA/Acacia_2013_tree.nwk \
+  --phylabels        "Latin" \
+  -resume \
+  -profile singularity \
+  -qs 16
+
+EOT
+
+chmod +x run_nf_B.sh
+
+
+mkdir -p ~/ACACIA/Analysis_B
+cd ~/ACACIA/Analysis_B
+
+## Submit the script to Slurm
+sbatch \
+  --job-name=nf_B -p "amd" \
+  --ntasks-per-node=16 --nodes=1 \
+  --mem=20G --time=05:00:00 \
+  ../run_nf_B.sh
+
+
+
+
+###### Analysis C - Original occurrences + BLADJ tree
+
+cd ~/ACACIA/
+
+## Create the script
+cat > run_nf_C.sh <<'EOT'
+#!/bin/bash
+
+## Load Singularity module
+module load any/singularity/3.7.3
+
+## Specify the max heap size
+export NXF_OPTS="-Xms500M -Xmx2G"
+
+## Specify the cache directory for a Singularity images
+export NXF_SINGULARITY_CACHEDIR="$HOME/Singularity_images/"
+
+## Run the pipeline
+nextflow run vmikk/PhyloNext -r main \
+  -c           $HOME/ACACIA/HPC.config \
+  -params-file $HOME/ACACIA/Params_Acacia.yaml \
+  --input      $HOME/ACACIA/Acacia_2013_parquet \
+  --genus      "Acacia" \
+  --phytree    $HOME/ACACIA/Acacia_2022_OTT_tree.nwk \
+  --phylabels  "OTT" \
+  --taxgroup   "Eudicots" \
+  -resume \
+  -profile singularity \
+  -qs 16
+
+EOT
+
+chmod +x run_nf_C.sh
+
+
+mkdir -p ~/ACACIA/Analysis_C
+cd ~/ACACIA/Analysis_C
+
+## Submit the script to Slurm
+sbatch \
+  --job-name=nf_C -p "amd" \
+  --ntasks-per-node=16 --nodes=1 \
+  --mem=20G --time=05:00:00 \
+  ../run_nf_C.sh
+
+
+
+###### Analysis D - GBIF occurrences + BLADJ tree
+
+cd ~/ACACIA/
+
+## Create the script
+cat > run_nf_D.sh <<'EOT'
+#!/bin/bash
+
+## Load Singularity module
+module load any/singularity/3.7.3
+
+## Specify the max heap size
+export NXF_OPTS="-Xms500M -Xmx2G"
+
+## Specify the cache directory for a Singularity images
+export NXF_SINGULARITY_CACHEDIR="$HOME/Singularity_images/"
+
+## Run the pipeline
+nextflow run vmikk/PhyloNext -r main \
+  -c           $HOME/ACACIA/HPC.config \
+  -params-file $HOME/ACACIA/Params_Acacia.yaml \
+  --input      $HOME/ACACIA/Acacia_2022Dec_parquet \
+  --genus      "Acacia" \
+  --basisofrecordinclude "PRESERVED_SPECIMEN" \
+  --minyear          1945 \
+  --coordprecision   0.1 \
+  --coorduncertainty 21000 \
+  --phytree          $HOME/ACACIA/Acacia_2022_OTT_tree.nwk \
+  --phylabels        "OTT" \
+  --taxgroup         "Eudicots" \
+  -resume \
+  -profile singularity \
+  -qs 16
+
+EOT
+
+chmod +x run_nf_D.sh
+
+mkdir -p ~/ACACIA/Analysis_D
+cd ~/ACACIA/Analysis_D
+
+## Submit the script to Slurm
+sbatch \
+  --job-name=nf_D -p "amd" \
+  --ntasks-per-node=16 --nodes=1 \
+  --mem=20G --time=05:00:00 \
+  ../run_nf_D.sh
+
