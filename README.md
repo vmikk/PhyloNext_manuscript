@@ -12,12 +12,12 @@ Directory **Data** contains:
 
 
 Directory **Scripts** contains:  
-- ...
+- `Acacia_PhyloNext.txt` - the main script that performs the analysis  
 
 
 Directory **Results** contains:  
 - the obtained diversity estimates in tabular format  
-- interactive Choropleth maps  
+- interactive choropleth maps  
 - results in GeoPackage format  
 
 
@@ -44,6 +44,7 @@ In addition, several *Acacia* species were renamed according to the current clas
 | *Acacia perangusta*          | *Acacia fimbriata*     |
 | *Acacia stowardii*           | *Acacia chamaeleon*    |
 | *Acacia vincentii*           | *Acacia deltoidea*     |
+
 
 
 ## Citation:
