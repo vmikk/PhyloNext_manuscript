@@ -3,6 +3,10 @@
 ## to demonstrate the capabilities of the PhyloNext pipeline.
 # 
 # The code includes:
+
+## Comparison of the pipeline resusta based on the data from the original study ("benchmark dataset")
+## and dataset with species occurrences derived from GBIF and phylogenetic tree from OToL
+#
 # a) a nearly identical analysis of the original spatial dataset 
 #    and phylogeny (González-Orozco et al., 2011, 2013; Mishler et al., 2014);
 # 
@@ -14,6 +18,30 @@
 # 
 # d) analysis of new filtered GBIF occurrence data with 
 #    a custom synthetic phylogeny from OpenTree
+
+## Comparison of species occurrence filtering settings:
+#
+# e) all relevant GBIF occurrences;
+#
+# f) all relevant GBIF occurrences excluding geospatial errors (e.g., country centroids)
+#
+# g) all relevant GBIF occurrences,
+#    excluding country centroids
+#    and outliers identified based on DBSCAN with stringent settings (500 km distance, 20 points)
+#
+# h) all relevant GBIF occurrences (all relevant), 
+#    excluding country centroids 
+#    and outliers identified based on DBSCAN with low detection settings (50 km, 3 points)
+#
+# i) GBIF occurrences (preserved specimens),
+#    excluding country centroids
+#    and outliers identified based on DBSCAN with stringent settings (500 km distance, 20 points)
+#
+# j) GBIF occurrences (only observation occurrences),
+#    excluding country centroids
+#    and outliers identified based on DBSCAN with stringent settings (500 km distance, 20 points)
+#
+
 
 
 ## NB.
