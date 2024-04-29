@@ -301,3 +301,399 @@ sbatch \
   --mem=20G --time=05:00:00 \
   ../run_nf_D.sh
 
+
+
+
+##############################################
+############################################## Comparison of species occurrence filtering settings
+##############################################
+
+
+###### Analysis E - all relevant GBIF occurrences
+
+cd ~/ACACIA/
+
+## Create the script
+cat > run_nf_E.sh <<'EOT'
+#!/bin/bash
+
+## Load Singularity module
+module load any/singularity/3.7.3
+
+## Specify the max heap size
+export NXF_OPTS="-Xms500M -Xmx2G"
+
+## Specify the cache directory for a Singularity images
+export NXF_SINGULARITY_CACHEDIR="$HOME/Singularity_images/"
+
+## Run the pipeline
+nextflow run vmikk/PhyloNext -r main \
+  -c           $HOME/ACACIA/HPC.config \
+  --input      $HOME/ACACIA/Acacia_2022Dec_parquet \
+  --genus      "Acacia" \
+  --basisofrecordinclude NA \
+  --basisofrecordexlude  NA \
+  --h3resolution         4 \
+  --indices              "calc_richness,calc_simpson_shannon,calc_endemism_whole,calc_pd,calc_pe,calc_phylo_rpd1,calc_phylo_rpd2,calc_phylo_rpe1,calc_phylo_rpe2" \
+  --leaflet_var          "RICHNESS_ALL,PD,SES_PD,PD_P,ENDW_WE,SES_ENDW_WE,PE_WE,SES_PE_WE,PHYLO_RPD2,SES_PHYLO_RPD2,PHYLO_RPE2,SES_PHYLO_RPE2,CANAPE,Redundancy" \
+  --leaflet_canapesuper  true \
+  --iterations           5000 \
+  --biodiversethreads    16 \
+  --randname             "rand_structured" \
+  --dbscan               False \
+  --phytree              $HOME/ACACIA/Acacia_2022_OTT_tree.nwk \
+  --phylabels            "OTT" \
+  --taxgroup             "Eudicots" \
+  -resume \
+  -profile singularity \
+  -qs 16
+
+EOT
+
+chmod +x run_nf_E.sh
+
+mkdir -p ~/ACACIA/Analysis_E
+cd ~/ACACIA/Analysis_E
+
+## Submit the script to Slurm
+sbatch \
+  --job-name=nf_E -p "amd" \
+  --ntasks-per-node=16 --nodes=1 \
+  --mem=20G --time=05:00:00 \
+  ../run_nf_E.sh
+
+
+
+
+###### Analysis F - all relevant GBIF occurrences excluding geospatial errors (e.g., country centroids)
+
+
+cd ~/ACACIA/
+
+## Create the script
+cat > run_nf_F.sh <<'EOT'
+#!/bin/bash
+
+## Load Singularity module
+module load any/singularity/3.7.3
+
+## Specify the max heap size
+export NXF_OPTS="-Xms500M -Xmx2G"
+
+## Specify the cache directory for a Singularity images
+export NXF_SINGULARITY_CACHEDIR="$HOME/Singularity_images/"
+
+## Run the pipeline
+nextflow run vmikk/PhyloNext -r main \
+  -c           $HOME/ACACIA/HPC.config \
+  --input      $HOME/ACACIA/Acacia_2022Dec_parquet \
+  --genus      "Acacia" \
+  --basisofrecordinclude NA \
+  --basisofrecordexlude  NA \
+  --h3resolution         4 \
+  --terrestrial          $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/Land_Buffered_025_dgr.RData \
+  --rmcountrycentroids   $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_CountryCentroids_buf_1000m.RData \
+  --rmcountrycentroids   $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_CountryCentroids_buf_1000m.RData \
+  --rmcountrycapitals    $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Capitals_buf_10000m.RData \
+  --rminstitutions       $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Institutions_buf_100m.RData \
+  --indices              "calc_richness,calc_simpson_shannon,calc_endemism_whole,calc_pd,calc_pe,calc_phylo_rpd1,calc_phylo_rpd2,calc_phylo_rpe1,calc_phylo_rpe2" \
+  --leaflet_var          "RICHNESS_ALL,PD,SES_PD,PD_P,ENDW_WE,SES_ENDW_WE,PE_WE,SES_PE_WE,PHYLO_RPD2,SES_PHYLO_RPD2,PHYLO_RPE2,SES_PHYLO_RPE2,CANAPE,Redundancy" \
+  --leaflet_canapesuper  true \
+  --iterations           5000 \
+  --biodiversethreads    16 \
+  --randname             "rand_structured" \
+  --dbscan               False \
+  --phytree              $HOME/ACACIA/Acacia_2022_OTT_tree.nwk \
+  --phylabels            "OTT" \
+  --taxgroup             "Eudicots" \
+  -resume \
+  -profile singularity \
+  -qs 16
+
+EOT
+
+
+chmod +x run_nf_F.sh
+
+mkdir -p ~/ACACIA/Analysis_F
+cd ~/ACACIA/Analysis_F
+
+## Submit the script to Slurm
+sbatch \
+  --job-name=nf_F -p "amd" \
+  --ntasks-per-node=16 --nodes=1 \
+  --mem=20G --time=06:00:00 \
+  ../run_nf_F.sh
+
+
+
+
+###### Analysis G - all relevant GBIF occurrences,
+#    excluding country centroids
+#    and outliers identified based on DBSCAN with stringent settings (500 km distance, 20 points)
+
+cd ~/ACACIA/
+
+## Create the script
+cat > run_nf_G.sh <<'EOT'
+#!/bin/bash
+
+## Load Singularity module
+module load any/singularity/3.7.3
+
+## Specify the max heap size
+export NXF_OPTS="-Xms500M -Xmx2G"
+
+## Specify the cache directory for a Singularity images
+export NXF_SINGULARITY_CACHEDIR="$HOME/Singularity_images/"
+
+## Run the pipeline
+nextflow run vmikk/PhyloNext -r main \
+  -c           $HOME/ACACIA/HPC.config \
+  --input      $HOME/ACACIA/Acacia_2022Dec_parquet \
+  --genus      "Acacia" \
+  --basisofrecordinclude NA \
+  --basisofrecordexlude  NA \
+  --h3resolution         4 \
+  --terrestrial          $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/Land_Buffered_025_dgr.RData \
+  --rmcountrycentroids   $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_CountryCentroids_buf_1000m.RData \
+  --rmcountrycentroids   $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_CountryCentroids_buf_1000m.RData \
+  --rmcountrycapitals    $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Capitals_buf_10000m.RData \
+  --rminstitutions       $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Institutions_buf_100m.RData \
+  --indices              "calc_richness,calc_simpson_shannon,calc_endemism_whole,calc_pd,calc_pe,calc_phylo_rpd1,calc_phylo_rpd2,calc_phylo_rpe1,calc_phylo_rpe2" \
+  --leaflet_var          "RICHNESS_ALL,PD,SES_PD,PD_P,ENDW_WE,SES_ENDW_WE,PE_WE,SES_PE_WE,PHYLO_RPD2,SES_PHYLO_RPD2,PHYLO_RPE2,SES_PHYLO_RPE2,CANAPE,Redundancy" \
+  --leaflet_canapesuper  true \
+  --iterations           5000 \
+  --biodiversethreads    16 \
+  --randname             "rand_structured" \
+  --dbscan               True \
+  --dbscannoccurrences   100 \
+  --dbscanepsilon        500 \
+  --dbscanminpts         20 \
+  --phytree              $HOME/ACACIA/Acacia_2022_OTT_tree.nwk \
+  --phylabels            "OTT" \
+  --taxgroup             "Eudicots" \
+  -resume \
+  -profile singularity \
+  -qs 16
+
+EOT
+
+
+chmod +x run_nf_G.sh
+
+mkdir -p ~/ACACIA/Analysis_G
+cd ~/ACACIA/Analysis_G
+
+## Submit the script to Slurm
+sbatch \
+  --job-name=nf_G -p "amd" \
+  --ntasks-per-node=16 --nodes=1 \
+  --mem=50G --time=10:00:00 \
+  ../run_nf_G.sh
+
+
+
+
+###### Analysis H - all relevant GBIF occurrences, 
+#    excluding country centroids 
+#    and outliers identified based on DBSCAN with low detection settings (50 km, 3 points)
+
+
+cd ~/ACACIA/
+
+## Create the script
+cat > run_nf_H.sh <<'EOT'
+#!/bin/bash
+
+## Load Singularity module
+module load any/singularity/3.7.3
+
+## Specify the max heap size
+export NXF_OPTS="-Xms500M -Xmx2G"
+
+## Specify the cache directory for a Singularity images
+export NXF_SINGULARITY_CACHEDIR="$HOME/Singularity_images/"
+
+## Run the pipeline
+nextflow run vmikk/PhyloNext -r main \
+  -c           $HOME/ACACIA/HPC.config \
+  --input      $HOME/ACACIA/Acacia_2022Dec_parquet \
+  --genus      "Acacia" \
+  --basisofrecordinclude NA \
+  --basisofrecordexlude  NA \
+  --h3resolution         4 \
+  --terrestrial          $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/Land_Buffered_025_dgr.RData \
+  --rmcountrycentroids   $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_CountryCentroids_buf_1000m.RData \
+  --rmcountrycentroids   $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_CountryCentroids_buf_1000m.RData \
+  --rmcountrycapitals    $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Capitals_buf_10000m.RData \
+  --rminstitutions       $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Institutions_buf_100m.RData \
+  --indices              "calc_richness,calc_simpson_shannon,calc_endemism_whole,calc_pd,calc_pe,calc_phylo_rpd1,calc_phylo_rpd2,calc_phylo_rpe1,calc_phylo_rpe2" \
+  --leaflet_var          "RICHNESS_ALL,PD,SES_PD,PD_P,ENDW_WE,SES_ENDW_WE,PE_WE,SES_PE_WE,PHYLO_RPD2,SES_PHYLO_RPD2,PHYLO_RPE2,SES_PHYLO_RPE2,CANAPE,Redundancy" \
+  --leaflet_canapesuper  true \
+  --iterations           5000 \
+  --biodiversethreads    16 \
+  --randname             "rand_structured" \
+  --dbscan               True \
+  --dbscannoccurrences   100 \
+  --dbscanepsilon        50 \
+  --dbscanminpts         3 \
+  --phytree              $HOME/ACACIA/Acacia_2022_OTT_tree.nwk \
+  --phylabels            "OTT" \
+  --taxgroup             "Eudicots" \
+  -resume \
+  -profile singularity \
+  -qs 16
+
+EOT
+
+
+chmod +x run_nf_H.sh
+
+mkdir -p ~/ACACIA/Analysis_H
+cd ~/ACACIA/Analysis_H
+
+## Submit the script to Slurm
+sbatch \
+  --job-name=nf_H -p "amd" \
+  --ntasks-per-node=16 --nodes=1 \
+  --mem=50G --time=10:00:00 \
+  ../run_nf_H.sh
+
+
+
+
+###### Analysis I - GBIF occurrences (only preserved specimens),
+#    excluding country centroids
+#    and outliers identified based on DBSCAN with stringent settings (500 km distance, 20 points)
+
+
+cd ~/ACACIA/
+
+## Create the script
+cat > run_nf_I.sh <<'EOT'
+#!/bin/bash
+
+## Load Singularity module
+module load any/singularity/3.7.3
+
+## Specify the max heap size
+export NXF_OPTS="-Xms500M -Xmx2G"
+
+## Specify the cache directory for a Singularity images
+export NXF_SINGULARITY_CACHEDIR="$HOME/Singularity_images/"
+
+## Run the pipeline
+nextflow run vmikk/PhyloNext -r main \
+  -c           $HOME/ACACIA/HPC.config \
+  --input      $HOME/ACACIA/Acacia_2022Dec_parquet \
+  --genus      "Acacia" \
+  --basisofrecordinclude "PRESERVED_SPECIMEN" \
+  --basisofrecordexlude  "FOSSIL_SPECIMEN,LIVING_SPECIMEN,HUMAN_OBSERVATION" \
+  --h3resolution         4 \
+  --terrestrial          $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/Land_Buffered_025_dgr.RData \
+  --rmcountrycentroids   $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_CountryCentroids_buf_1000m.RData \
+  --rmcountrycentroids   $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_CountryCentroids_buf_1000m.RData \
+  --rmcountrycapitals    $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Capitals_buf_10000m.RData \
+  --rminstitutions       $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Institutions_buf_100m.RData \
+  --indices              "calc_richness,calc_simpson_shannon,calc_endemism_whole,calc_pd,calc_pe,calc_phylo_rpd1,calc_phylo_rpd2,calc_phylo_rpe1,calc_phylo_rpe2" \
+  --leaflet_var          "RICHNESS_ALL,PD,SES_PD,PD_P,ENDW_WE,SES_ENDW_WE,PE_WE,SES_PE_WE,PHYLO_RPD2,SES_PHYLO_RPD2,PHYLO_RPE2,SES_PHYLO_RPE2,CANAPE,Redundancy" \
+  --leaflet_canapesuper  true \
+  --iterations           5000 \
+  --biodiversethreads    16 \
+  --randname             "rand_structured" \
+  --dbscan               True \
+  --dbscannoccurrences   100 \
+  --dbscanepsilon        500 \
+  --dbscanminpts         20 \
+  --phytree              $HOME/ACACIA/Acacia_2022_OTT_tree.nwk \
+  --phylabels            "OTT" \
+  --taxgroup             "Eudicots" \
+  -resume \
+  -profile singularity \
+  -qs 16
+
+EOT
+
+
+chmod +x run_nf_I.sh
+
+mkdir -p ~/ACACIA/Analysis_I
+cd ~/ACACIA/Analysis_I
+
+## Submit the script to Slurm
+sbatch \
+  --job-name=nf_I -p "amd" \
+  --ntasks-per-node=16 --nodes=1 \
+  --mem=50G --time=10:00:00 \
+  ../run_nf_I.sh
+
+
+
+
+###### Analysis J - GBIF occurrences (only observation occurrences),
+#    excluding country centroids
+#    and outliers identified based on DBSCAN with stringent settings (500 km distance, 20 points)
+
+
+cd ~/ACACIA/
+
+## Create the script
+cat > run_nf_J.sh <<'EOT'
+#!/bin/bash
+
+## Load Singularity module
+module load any/singularity/3.7.3
+
+## Specify the max heap size
+export NXF_OPTS="-Xms500M -Xmx2G"
+
+## Specify the cache directory for a Singularity images
+export NXF_SINGULARITY_CACHEDIR="$HOME/Singularity_images/"
+
+## Run the pipeline
+nextflow run vmikk/PhyloNext -r main \
+  -c           $HOME/ACACIA/HPC.config \
+  --input      $HOME/ACACIA/Acacia_2022Dec_parquet \
+  --genus      "Acacia" \
+  --basisofrecordinclude "HUMAN_OBSERVATION" \
+  --basisofrecordexlude  "FOSSIL_SPECIMEN,LIVING_SPECIMEN,PRESERVED_SPECIMEN" \
+  --h3resolution         4 \
+  --terrestrial          $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/Land_Buffered_025_dgr.RData \
+  --rmcountrycentroids   $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_CountryCentroids_buf_1000m.RData \
+  --rmcountrycentroids   $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_CountryCentroids_buf_1000m.RData \
+  --rmcountrycapitals    $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Capitals_buf_10000m.RData \
+  --rminstitutions       $HOME/.nextflow/assets/vmikk/PhyloNext/pipeline_data/CC_Institutions_buf_100m.RData \
+  --indices              "calc_richness,calc_simpson_shannon,calc_endemism_whole,calc_pd,calc_pe,calc_phylo_rpd1,calc_phylo_rpd2,calc_phylo_rpe1,calc_phylo_rpe2" \
+  --leaflet_var          "RICHNESS_ALL,PD,SES_PD,PD_P,ENDW_WE,SES_ENDW_WE,PE_WE,SES_PE_WE,PHYLO_RPD2,SES_PHYLO_RPD2,PHYLO_RPE2,SES_PHYLO_RPE2,CANAPE,Redundancy" \
+  --leaflet_canapesuper  true \
+  --iterations           5000 \
+  --biodiversethreads    16 \
+  --randname             "rand_structured" \
+  --dbscan               True \
+  --dbscannoccurrences   100 \
+  --dbscanepsilon        500 \
+  --dbscanminpts         20 \
+  --phytree              $HOME/ACACIA/Acacia_2022_OTT_tree.nwk \
+  --phylabels            "OTT" \
+  --taxgroup             "Eudicots" \
+  -resume \
+  -profile singularity \
+  -qs 16
+
+EOT
+
+
+chmod +x run_nf_J.sh
+
+mkdir -p ~/ACACIA/Analysis_J
+cd ~/ACACIA/Analysis_J
+
+## Submit the script to Slurm
+sbatch \
+  --job-name=nf_J -p "amd" \
+  --ntasks-per-node=16 --nodes=1 \
+  --mem=50G --time=10:00:00 \
+  ../run_nf_J.sh
+
+
